@@ -23,6 +23,7 @@ import { z } from "zod";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useCallback } from "react";
 
 const signUpSchema = z
   .object({
@@ -52,31 +53,29 @@ export default function SignUp() {
   });
   const router = useRouter();
 
-  async function handleSubmit({
-    firstName,
-    lastName,
-    email,
-    password,
-  }: SignUpSchema) {
-    await authClient.signUp.email(
-      {
-        email,
-        password,
-        name: `${firstName.trim()} ${lastName.trim()}`,
-      },
-      {
-        onError: (ctx) => {
-          // clear sign in form
-          toast.error(ctx.error.message);
-          form.reset();
+  const handleSubmit = useCallback(
+    async ({ firstName, lastName, email, password }: SignUpSchema) => {
+      await authClient.signUp.email(
+        {
+          email,
+          password,
+          name: `${firstName.trim()} ${lastName.trim()}`,
         },
-        onSuccess: (ctx) => {
-          toast.success("Signed in successfully");
-          router.push("/");
+        {
+          onError: (ctx) => {
+            // clear sign in form
+            toast.error(ctx.error.message);
+            form.reset();
+          },
+          onSuccess: (ctx) => {
+            toast.success("Signed in successfully");
+            router.push("/");
+          },
         },
-      },
-    );
-  }
+      );
+    },
+    [form, router],
+  );
 
   return (
     <main className="bg-muted flex flex-col flex-1 items-center justify-center">

@@ -24,8 +24,8 @@ model User {
   updatedAt           DateTime     @default(now()) @updatedAt
   sessions            Session[]
   accounts            Account[]
-  sentFriendships     Friendship[] @relation("UserFriendshipRequester")
-  receivedFriendships Friendship[] @relation("UserFriendshipAddressee")
+  sentFriendships     Friendship[] @relation("FriendshipsSent")
+  receivedFriendships Friendship[] @relation("FriendshipsReceived")
 
   @@unique([email])
   @@map("user")
@@ -77,16 +77,17 @@ model Verification {
 }
 
 model Friendship {
-  id          String           @id @map("_id")
+  id          String           @id @default(auto()) @map("_id") @db.ObjectId
   requesterId String
-  requester   User             @relation("UserFriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  requester   User             @relation("FriendshipsSent", fields: [requesterId], references: [id], onDelete: Cascade)
   addresseeId String
-  addressee   User             @relation("UserFriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  addressee   User             @relation("FriendshipsReceived", fields: [addresseeId], references: [id], onDelete: Cascade)
   status      FriendshipStatus @default(PENDING)
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @default(now()) @updatedAt
 
   @@unique([requesterId, addresseeId])
+  @@map("friendship")
 }
 
 enum FriendshipStatus {

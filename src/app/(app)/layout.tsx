@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import { Providers } from "@/app/providers";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { AppSidebar } from "./_components/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { getServerSession } from "@/lib/get-server-session";
+import { redirect } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,23 +27,19 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
+
+  if (!session) redirect("/sign-in");
 
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
       <body>
         <Providers>
-          {!session ? (
-            children
-          ) : (
-            <SidebarProvider open={true}>
-              <AppSidebar user={session.user} />
-              {children}
-            </SidebarProvider>
-          )}
+          <SidebarProvider open={true}>
+            <AppSidebar user={session.user} />
+            {children}
+          </SidebarProvider>
         </Providers>
       </body>
     </html>
