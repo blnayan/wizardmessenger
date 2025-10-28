@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getServerSession } from "@/lib/get-server-session";
 import { FriendshipRequests } from "./_components/friend-requests";
-import { User } from "@prisma/client";
 
 export default async function FriendsRequestsPage() {
   const session = await getServerSession();
@@ -18,6 +17,7 @@ export default async function FriendsRequestsPage() {
     },
     include: {
       requester: true,
+      addressee: true,
     },
   });
 

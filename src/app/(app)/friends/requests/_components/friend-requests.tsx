@@ -3,22 +3,21 @@
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { customFetch } from "@/lib/custom-fetch";
-import { Friendship, User } from "@prisma/client";
+import { safeFetch } from "@/lib/safe-fetch";
+import { socket } from "@/lib/socket";
 import { Check, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { set } from "zod/v3";
+import { FullFriendship } from "@/types/db-model-types";
 
 export interface FriendRequestsProps {
   userId: string;
-  friendshipRequests: ({ requester: User } & Friendship)[];
+  friendshipRequests: FullFriendship[];
 }
 
 export function FriendshipRequests({
@@ -32,23 +31,39 @@ export function FriendshipRequests({
     setFriendshipRequestList(friendshipRequests);
   }, [friendshipRequests]);
 
-  async function handleRequestAction(id: string, action: "ACCEPT" | "DECLINE") {
-    const response = await customFetch.patch(`/api/friends/requests`, {
-      id,
+  useEffect(() => {
+    socket.on("friendshipRequest", (friendship) => {
+      setFriendshipRequestList((prev) => [...prev, friendship]);
+    });
+
+    return () => {
+      socket.off("friendshipRequest");
+    };
+  }, []);
+
+  async function handleRequestAction(
+    friendship: FullFriendship,
+    action: "ACCEPT" | "DECLINE",
+  ) {
+    const result = await safeFetch.patch(`/api/friends/requests`, {
+      id: friendship.id,
       action,
     });
 
-    if (!response.ok) {
-      toast.error((await response.json()).error);
+    if (!result.ok) {
+      toast.error(result.error);
       return;
     }
 
     setFriendshipRequestList((prev) =>
-      prev.filter((request) => request.id !== id),
+      prev.filter((request) => request.id !== friendship.id),
     );
 
+    if (action === "ACCEPT") {
+      socket.emit("friendshipAccepted", friendship);
+    }
+
     toast.success(`Friend request ${action.toLowerCase()}ed.`);
-    return;
   }
 
   return friendshipRequestList.map((friendshipRequest) => (
@@ -61,9 +76,9 @@ export function FriendshipRequests({
 }
 
 export interface FriendshipRequestProps {
-  friendshipRequest: { requester: User } & Friendship;
+  friendshipRequest: FullFriendship;
   handleRequestAction: (
-    id: string,
+    friendship: FullFriendship,
     action: "ACCEPT" | "DECLINE",
   ) => Promise<void>;
 }
@@ -75,17 +90,17 @@ export function FriendshipRequest({
   const { requester } = friendshipRequest;
 
   return (
-    <Card className="flex flex-row">
-      <CardHeader className="flex-1">
+    <Card className="flex flex-row py-4">
+      <CardHeader className="flex-1 px-4">
         <CardTitle>{requester.name}</CardTitle>
         <CardDescription>{requester.email}</CardDescription>
       </CardHeader>
-      <CardFooter className="flex flex-row gap-4">
+      <CardFooter className="flex flex-row gap-4 px-4">
         <Button
           variant="outline"
           size="icon"
           className="hover:cursor-pointer"
-          onClick={() => handleRequestAction(friendshipRequest.id, "ACCEPT")}
+          onClick={() => handleRequestAction(friendshipRequest, "ACCEPT")}
         >
           <Check />
         </Button>
@@ -93,7 +108,7 @@ export function FriendshipRequest({
           variant="outline"
           size="icon"
           className="hover:cursor-pointer"
-          onClick={() => handleRequestAction(friendshipRequest.id, "DECLINE")}
+          onClick={() => handleRequestAction(friendshipRequest, "DECLINE")}
         >
           <X />
         </Button>

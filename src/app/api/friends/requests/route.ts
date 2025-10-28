@@ -70,6 +70,10 @@ export async function POST(request: NextRequest) {
       requester: { connect: { id: userId } },
       addressee: { connect: { id: addressee.id } },
     },
+    include: {
+      requester: true,
+      addressee: true,
+    },
   });
 
   return NextResponse.json(friendshipRequest);

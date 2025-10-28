@@ -12,8 +12,8 @@ export default function FriendsLayout({
   const pathname = usePathname();
 
   return (
-    <main className="p-2 flex flex-col min-h-screen w-full gap-2">
-      <div className="px-2 flex flex-row gap-2">
+    <main className="p-4 flex flex-col min-h-full w-full gap-4">
+      <div className="flex flex-row gap-2">
         <FriendsMenuButton isActive={pathname.endsWith("/all")} asChild>
           <Link href="/friends/all">All</Link>
         </FriendsMenuButton>
@@ -24,7 +24,7 @@ export default function FriendsLayout({
           <Link href="/friends/add">Add</Link>
         </FriendsMenuButton>
       </div>
-      <div className="px-2 flex flex-col gap-2">{children}</div>
+      <div className="flex flex-col gap-4">{children}</div>
     </main>
   );
 }

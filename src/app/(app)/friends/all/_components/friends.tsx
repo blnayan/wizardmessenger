@@ -8,14 +8,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { customFetch } from "@/lib/custom-fetch";
-import { Friendship, User } from "@prisma/client";
+import { safeFetch } from "@/lib/safe-fetch";
+import { User } from "@prisma/client";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
+import { socket } from "@/lib/socket";
+import { FullFriendship } from "@/types/db-model-types";
 
 export interface FriendsProps {
   userId: string;
-  friendships: ({ requester: User; addressee: User } & Friendship)[];
+  friendships: FullFriendship[];
 }
 
 export function Friends({ userId, friendships }: FriendsProps) {
@@ -25,11 +27,21 @@ export function Friends({ userId, friendships }: FriendsProps) {
     setFriendshipList(friendships);
   }, [friendships]);
 
-  async function handleFriendRemove(friendshipId: string) {
-    const response = await customFetch.delete(`/api/friends/${friendshipId}`);
+  useEffect(() => {
+    socket.on("friendshipAccepted", (friendship) => {
+      setFriendshipList((prev) => [...prev, friendship]);
+    });
 
-    if (!response.ok) {
-      toast.error((await response.json()).error);
+    return () => {
+      socket.off("friendshipAccepted");
+    };
+  }, []);
+
+  async function handleFriendRemove(friendshipId: string) {
+    const result = await safeFetch.delete(`/api/friends/${friendshipId}`);
+
+    if (!result.ok) {
+      toast.error(result.error);
       return;
     }
 
@@ -69,12 +81,12 @@ export function Friend({
   handleFriendRemove,
 }: FriendProps) {
   return (
-    <Card className="flex flex-row">
-      <CardHeader className="flex-1">
+    <Card className="flex flex-row py-4">
+      <CardHeader className="flex-1 px-4">
         <CardTitle>{friend.name}</CardTitle>
         <CardDescription>{friend.email}</CardDescription>
       </CardHeader>
-      <CardFooter>
+      <CardFooter className="px-4">
         <Button
           variant="destructive"
           className="hover:cursor-pointer"

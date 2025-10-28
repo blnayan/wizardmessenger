@@ -3,12 +3,13 @@
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { customFetch } from "@/lib/custom-fetch";
+import { safeFetch } from "@/lib/safe-fetch";
+import { socket } from "@/lib/socket";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { FullFriendship } from "@/types/db-model-types";
 
 const addFriendSchema = z.object({
   email: z.email(),
@@ -24,22 +25,25 @@ export default function FriendsAddPage() {
     },
   });
 
-  const handleSubmit = useCallback(
-    async ({ email }: AddFriendSchema) => {
-      const response = await customFetch.post("/api/friends/requests", {
+  async function handleSubmit({ email }: AddFriendSchema) {
+    const result = await safeFetch.post<FullFriendship>(
+      "/api/friends/requests",
+      {
         email,
-      });
+      },
+    );
 
-      form.reset();
+    form.reset();
 
-      if (!response.ok) {
-        return toast.error((await response.json()).error);
-      }
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
 
-      return toast.success(`Friend request sent to ${email}`);
-    },
-    [form],
-  );
+    socket.emit("friendshipRequest", result.data);
+
+    toast.success(`Friend request sent to ${email}`);
+  }
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)}>

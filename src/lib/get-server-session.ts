@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { auth } from "./auth";
 
 export const getServerSession = cache(async () => {
   return auth.api.getSession({

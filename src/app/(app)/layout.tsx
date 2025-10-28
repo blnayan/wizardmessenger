@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import { Providers } from "@/app/providers";
 import { AppSidebar } from "./_components/app-sidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getServerSession } from "@/lib/get-server-session";
 import { redirect } from "next/navigation";
 
@@ -34,11 +34,13 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
-      <body>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-muted`}
+      >
         <Providers>
-          <SidebarProvider open={true}>
+          <SidebarProvider open>
             <AppSidebar user={session.user} />
-            {children}
+            <SidebarInset>{children}</SidebarInset>
           </SidebarProvider>
         </Providers>
       </body>

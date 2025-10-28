@@ -19,7 +19,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
   const pathname = usePathname();
 
   return (
-    <Sidebar>
+    <Sidebar variant="inset">
       <SidebarHeader>
         <SidebarMenuButton isActive={pathname.startsWith("/friends")} asChild>
           <Link href="/friends/all">Friends</Link>
