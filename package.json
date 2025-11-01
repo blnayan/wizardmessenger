@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "ts-node --project tsconfig.server.json -r tsconfig-paths/register ./src/server.ts",
-    "build": "next build --turbopack && tsc --project tsconfig.server.json",
-    "start": "cross-env NODE_ENV=production node -r tsconfig-paths/register ./dist/server.js",
+    "dev": "bun ./src/server.ts",
+    "build": "next build --turbopack",
+    "start": "NODE_ENV=production bun ./src/server.ts",
     "lint": "eslint"
   },
   "dependencies": {
@@ -36,7 +36,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@tailwindcss/postcss": "^4.1.16",
-    "@types/node": "^20.19.24",
+    "@types/bun": "latest",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "cross-env": "^10.1.0",
