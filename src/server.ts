@@ -37,18 +37,42 @@ app.prepare().then(() => {
     }
 
     const user = session.user as User;
-
+    console.log(`User ${user.name} connected`);
     socket.data.user = user;
     socket.join(user.id);
 
     socket.on("friendshipAccepted", (friendship) => {
-      io.to(friendship.requesterId)
-        .to(friendship.addresseeId)
+      io.to(friendship.senderId)
+        .to(friendship.recipientId)
         .emit("friendshipAccepted", friendship);
+      io.to(friendship.senderId).emit(
+        "friendAdded",
+        friendship.recipient,
+        friendship.id,
+      );
+      io.to(friendship.recipientId).emit(
+        "friendAdded",
+        friendship.sender,
+        friendship.id,
+      );
     });
 
     socket.on("friendshipRequest", (friendship) => {
-      io.to(friendship.addresseeId).emit("friendshipRequest", friendship);
+      io.to(friendship.recipientId).emit("friendshipRequest", friendship);
+    });
+
+    socket.on("friendshipRemoved", (friendshipId, friendId) => {
+      io.to(friendId).emit("friendshipRemoved", friendshipId);
+      io.to(friendId).emit("friendRemoved", socket.data.user.id);
+      io.to(socket.data.user.id).emit("friendRemoved", friendId);
+    });
+
+    socket.on("disconnect", () => {
+      console.log(`User ${socket.data.user.name} disconnected`);
+    });
+
+    socket.on("messageSent", (message) => {
+      io.to(message.recipientId).emit("messageSent", message);
     });
   });
 

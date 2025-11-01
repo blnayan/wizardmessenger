@@ -32,12 +32,19 @@ export function Friends({ userId, friendships }: FriendsProps) {
       setFriendshipList((prev) => [...prev, friendship]);
     });
 
+    socket.on("friendshipRemoved", (friendshipId) => {
+      setFriendshipList((prev) =>
+        prev.filter((friendship) => friendship.id !== friendshipId),
+      );
+    });
+
     return () => {
       socket.off("friendshipAccepted");
+      socket.off("friendshipRemoved");
     };
   }, []);
 
-  async function handleFriendRemove(friendshipId: string) {
+  async function handleFriendRemove(friendshipId: string, friendId: string) {
     const result = await safeFetch.delete(`/api/friends/${friendshipId}`);
 
     if (!result.ok) {
@@ -49,14 +56,16 @@ export function Friends({ userId, friendships }: FriendsProps) {
       prev.filter((friendship) => friendship.id !== friendshipId),
     );
 
+    socket.emit("friendshipRemoved", friendshipId, friendId);
+
     toast.success("Friend removed successfully");
   }
 
   return friendshipList.map((friendship) => {
     const friend =
-      friendship.addresseeId === userId
-        ? friendship.requester
-        : friendship.addressee;
+      friendship.recipientId === userId
+        ? friendship.sender
+        : friendship.recipient;
 
     return (
       <Friend
@@ -72,7 +81,7 @@ export function Friends({ userId, friendships }: FriendsProps) {
 export interface FriendProps {
   friendshipId: string;
   friend: User;
-  handleFriendRemove: (friendshipId: string) => Promise<void>;
+  handleFriendRemove: (friendshipId: string, friendId: string) => Promise<void>;
 }
 
 export function Friend({
@@ -90,7 +99,7 @@ export function Friend({
         <Button
           variant="destructive"
           className="hover:cursor-pointer"
-          onClick={() => handleFriendRemove(friendshipId)}
+          onClick={() => handleFriendRemove(friendshipId, friend.id)}
         >
           Remove
         </Button>

@@ -6,6 +6,7 @@ import { AppSidebar } from "./_components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getServerSession } from "@/lib/get-server-session";
 import { redirect } from "next/navigation";
+import { User } from "@prisma/client";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,12 +36,14 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head />
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-muted`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen max-w-full bg-sidebar`}
       >
         <Providers>
-          <SidebarProvider open>
-            <AppSidebar user={session.user} />
-            <SidebarInset>{children}</SidebarInset>
+          <SidebarProvider className="flex flex-row" open>
+            <AppSidebar user={session.user as User} />
+            <div className="grow w-full min-h-screen bg-background">
+              {children}
+            </div>
           </SidebarProvider>
         </Providers>
       </body>

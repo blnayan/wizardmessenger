@@ -19,19 +19,19 @@ export async function GET() {
   const userId = session.user.id;
   const friendships = await prisma.friendship.findMany({
     where: {
-      OR: [{ addresseeId: userId }, { requesterId: userId }],
+      OR: [{ recipientId: userId }, { senderId: userId }],
       status: "ACCEPTED",
     },
     include: {
-      addressee: true,
-      requester: true,
+      recipient: true,
+      sender: true,
     },
   });
 
   const friends = friendships.map((friendship) =>
-    friendship.addresseeId === userId
-      ? friendship.requester
-      : friendship.addressee,
+    friendship.recipientId === userId
+      ? friendship.sender
+      : friendship.recipient,
   );
 
   return NextResponse.json<User[]>(friends);

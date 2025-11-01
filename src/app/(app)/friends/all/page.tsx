@@ -18,12 +18,12 @@ export default async function FriendsAllPage() {
   const userId = session.user.id;
   const friendships = await prisma.friendship.findMany({
     where: {
-      OR: [{ addresseeId: userId }, { requesterId: userId }],
+      OR: [{ recipientId: userId }, { senderId: userId }],
       status: "ACCEPTED",
     },
     include: {
-      addressee: true,
-      requester: true,
+      recipient: true,
+      sender: true,
     },
   });
 

@@ -87,13 +87,13 @@ export function FriendshipRequest({
   friendshipRequest,
   handleRequestAction,
 }: FriendshipRequestProps) {
-  const { requester } = friendshipRequest;
+  const { sender } = friendshipRequest;
 
   return (
     <Card className="flex flex-row py-4">
       <CardHeader className="flex-1 px-4">
-        <CardTitle>{requester.name}</CardTitle>
-        <CardDescription>{requester.email}</CardDescription>
+        <CardTitle>{sender.name}</CardTitle>
+        <CardDescription>{sender.email}</CardDescription>
       </CardHeader>
       <CardFooter className="flex flex-row gap-4 px-4">
         <Button

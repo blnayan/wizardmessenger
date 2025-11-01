@@ -12,12 +12,12 @@ export default async function FriendsRequestsPage() {
   const userId = session.user.id;
   const friendshipRequests = await prisma.friendship.findMany({
     where: {
-      addresseeId: userId,
+      recipientId: userId,
       status: "PENDING",
     },
     include: {
-      requester: true,
-      addressee: true,
+      sender: true,
+      recipient: true,
     },
   });
 

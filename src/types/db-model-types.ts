@@ -1,6 +1,8 @@
 import { Friendship, User } from "@prisma/client";
 
 export type FullFriendship = {
-  requester: User;
-  addressee: User;
+  sender: User;
+  recipient: User;
 } & Friendship;
+
+export type UserWithFriendshipId = User & { friendshipId: string };

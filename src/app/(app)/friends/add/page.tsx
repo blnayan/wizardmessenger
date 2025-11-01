@@ -53,7 +53,7 @@ export default function FriendsAddPage() {
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
             <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-            <div className="flex flex-row gap-4">
+            <div className="flex md:flex-row flex-col gap-4">
               <Input
                 {...field}
                 id={field.name}

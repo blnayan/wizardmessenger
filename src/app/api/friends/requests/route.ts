@@ -18,11 +18,11 @@ export async function GET() {
   const userId = session.user.id;
   const friendshipRequests = await prisma.friendship.findMany({
     where: {
-      addresseeId: userId,
+      recipientId: userId,
       status: "PENDING",
     },
     include: {
-      requester: true,
+      sender: true,
     },
   });
 
@@ -47,18 +47,18 @@ export async function POST(request: NextRequest) {
   }
 
   // find user by email that is not the current user and has no friendship with the current user
-  const addressee = await prisma.user.findFirst({
+  const recipient = await prisma.user.findFirst({
     where: {
       email,
-      sentFriendships: { none: { addresseeId: userId } },
-      receivedFriendships: { none: { requesterId: userId } },
+      sentFriendships: { none: { recipientId: userId } },
+      receivedFriendships: { none: { senderId: userId } },
     },
     select: {
       id: true,
     },
   });
 
-  if (!addressee) {
+  if (!recipient) {
     return NextResponse.json(
       { error: "Valid User not found" },
       { status: 404 },
@@ -67,12 +67,12 @@ export async function POST(request: NextRequest) {
 
   const friendshipRequest = await prisma.friendship.create({
     data: {
-      requester: { connect: { id: userId } },
-      addressee: { connect: { id: addressee.id } },
+      sender: { connect: { id: userId } },
+      recipient: { connect: { id: recipient.id } },
     },
     include: {
-      requester: true,
-      addressee: true,
+      sender: true,
+      recipient: true,
     },
   });
 
