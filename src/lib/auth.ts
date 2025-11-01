@@ -7,6 +7,7 @@ export const auth = betterAuth({
     provider: "mongodb",
   }),
   secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: process.env.BASE_URL,
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
