@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "bun ./src/server.ts",
-    "build": "next build --turbopack",
-    "start": "NODE_ENV=production bun ./src/server.ts",
+    "dev": "bun --bun ./src/server.ts",
+    "build": "bun --bun next build --turbopack",
+    "start": "NODE_ENV=production bun --bun ./src/server.ts",
     "lint": "eslint"
   },
   "dependencies": {
