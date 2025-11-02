@@ -36,12 +36,12 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head />
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen max-w-full bg-sidebar`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-sidebar`}
       >
         <Providers>
           <SidebarProvider className="flex flex-row" open>
             <AppSidebar user={session.user as User} />
-            <div className="grow w-full min-h-screen bg-background">
+            <div className="flex-1 min-w-0 h-screen bg-background">
               {children}
             </div>
           </SidebarProvider>

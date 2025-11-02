@@ -38,7 +38,7 @@ export function MessageTextArea({ onSendMessage }: MessageTextAreaProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="flex-0" onSubmit={handleSubmit}>
       <InputGroup className="items-end">
         <InputGroupAutoSizingTextarea
           className="h-11 min-h-11"

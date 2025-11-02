@@ -7,20 +7,23 @@ export interface MessageCardProps {
   message: Message;
 }
 
-const messageStyle = cva("py-2 px-3 rounded-md max-w-[75%] text-sm w-fit", {
-  variants: {
-    variant: {
-      user: "ml-auto bg-primary text-primary-foreground",
-      friend: "bg-muted",
+const messageStyle = cva(
+  "py-2 px-3 rounded-md max-w-[75%] text-sm w-fit break-words",
+  {
+    variants: {
+      from: {
+        user: "ml-auto bg-primary text-primary-foreground",
+        friend: "bg-muted",
+      },
     },
-  },
-});
+  }
+);
 
 export function MessageCard({ userId, message }: MessageCardProps) {
   const messageFrom = message.senderId === userId ? "user" : "friend";
 
   return (
-    <div className={cn(messageStyle({ variant: messageFrom }))}>
+    <div className={cn(messageStyle({ from: messageFrom }))}>
       {message.content}
     </div>
   );
